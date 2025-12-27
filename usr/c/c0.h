@@ -87,7 +87,7 @@ int	deflab;
 int	nauto;
 int	autolen;
 int	peeksym;
-int	peekc;
+int	peekc; /* Look ahead character? */
 int	eof;
 int	line;
 int	*treebase;

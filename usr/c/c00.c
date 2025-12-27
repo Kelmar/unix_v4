@@ -5,7 +5,7 @@ Copyright 1972 Bell Telephone Laboratories, Inc.
 
 */
 
-#include "c0h.c"
+#include "c0.h"
 
 int	isn 1;
 int	peeksym -1;
@@ -121,25 +121,33 @@ struct hshtab *lookup()
 	return(rp);
 }
 
-symbol() {
+symbol()
+{
 	register c;
 	register char *sp;
 
-	if (peeksym>=0) {
+	if (peeksym>=0)
+    {
 		c = peeksym;
 		peeksym = -1;
 		if (c==NAME)
 			mosflg = 0;
 		return(c);
 	}
-	if (peekc) {
+
+	if (peekc)
+    {
 		c = peekc;
 		peekc = 0;
-	} else
+	}
+    else
+    {
 		if (eof)
 			return(EOF);
 		else
 			c = getchar();
+    }
+
 loop:
 	switch(ctab[c]) {
 
@@ -168,13 +176,18 @@ loop:
 		return(subseq(c,subseq('>',MINUS,ARROW),DECBEF));
 
 	case ASSIGN:
-		if (subseq(' ',0,1)) return(ASSIGN);
+		if (subseq(' ',0,1))
+            return(ASSIGN);
+
 		c = symbol();
-		if (c>=PLUS && c<=EXOR) {
+		if (c>=PLUS && c<=EXOR)
+        {
 			if (peekc==0)
 				peekc = getchar();
+
 			if (ctab[peekc] != SPACE 
-			 && (c==MINUS || c==AND || c==TIMES)) {
+			 && (c==MINUS || c==AND || c==TIMES))
+            {
 				error("Warning: assignment understood");
 				nerror--;
 			}
