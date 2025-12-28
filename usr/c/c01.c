@@ -330,7 +330,7 @@ error(s, p1, p2, p3, p4, p5, p6)
 	ascbuf[0] = f;
 }
 
-block(n, op, t, d, p1,p2,p3)
+block(n, op, t, d, p1, p2, p3)
 int *p1, *p2, *p3;
 {
 	register int *ap, *p;
