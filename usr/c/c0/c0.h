@@ -48,6 +48,7 @@ struct tname
     int nop;
     int ntype;
     int ndimp;
+
     int class;
     int offset;
     int nloc;
@@ -70,6 +71,37 @@ struct hshtab
     char name[ncps];
 };
 
+struct tnode_new
+{
+    int op;   // Same as nop, cop, hclass
+    int type; // Same as ntype, ctype, htype
+    int dimp; // Same as ndimp, cdimp, hdimp
+
+    union
+    {
+        struct /* Reserving space? */
+        {
+            struct tnode *tr1;
+            struct tnode *tr2;
+        };
+        struct /* tname */
+        {
+            int class;
+            int offset;
+            int nloc;
+        };
+        struct /* tconst */
+        {
+            int value;
+        };
+        struct
+        {
+            int hoffset;
+            char name[ncps];
+        };
+    };
+};
+
 struct swtab
 {
     int swlab;
@@ -83,7 +115,10 @@ extern char symbuf[ncps];
 extern int hshused;
 extern struct hshtab hshtab[hshsiz];
 extern int *space;
+
+/* Pointer to a pointer? */
 extern int *cp;
+
 extern int cmst[cmsiz];
 extern int isn;
 extern struct swtab swtab[swsiz];
@@ -281,6 +316,7 @@ extern int regvar;
 /* Polyfill code */
 int fcreat(const char *path, const char *buf);
 void putw_old(int *, char *);
+void fflush_old(char buffer[518]);
 
 /* Other functions */
 void extdef();
@@ -288,16 +324,21 @@ void blkend();
 int chkdim();
 int length(struct hshtab *dsym);
 int rlength(struct hshtab *dsym);
-int conexp();
+int plength(struct tnode *node);
 int getype();
 void errflush(int o);
 void build(int o);
 void pblock(int o);
 int nextchar();
-int block(int, int, int, int, int p1, int p2, int p3);
 int getnum(int base);
 
+/* Defined in c00.c */
+struct tnode *tree();
+
+/* Defined in c01.c */
+void build(int op);
+
+int *block(int num, int op, int t, int d, int p1, int p2, int p3);
 void error(char *fmt, ...);
 
-void flush_buffer(char buffer[518]); /* Originally "fflush" which conflicts with modern C fflush */
-
+int conexp();

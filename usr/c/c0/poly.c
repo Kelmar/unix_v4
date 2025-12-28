@@ -14,3 +14,7 @@ void putw_old(int *p1, char *p2)
 {
 }
 
+void fflush_old(char buffer[518])
+{
+}
+

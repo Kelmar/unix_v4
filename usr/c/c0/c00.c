@@ -472,7 +472,7 @@ loop:
     return (a);
 }
 
-int tree()
+struct tnode *tree()
 {
 #define SEOF 200
 #define SSIZE 20
