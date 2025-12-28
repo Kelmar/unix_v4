@@ -69,6 +69,7 @@ void main(int argc, char* argv[])
     int treespace[ossiz];
     register char *sp, *np;
     register struct kwtab *ip;
+    struct hshtab *sym;
 
     if (argc < 4)
     {
@@ -101,9 +102,9 @@ void main(int argc, char* argv[])
                 np--;
         }
 
-        np = lookup();
-        np->hclass = KEYWC;
-        np->htype = ip->kwval;
+        sym = lookup();
+        sym->hclass = KEYWC;
+        sym->htype = ip->kwval;
     }
 
     xdflg = 0;
@@ -157,7 +158,7 @@ struct hshtab *lookup()
     rp->hclass = 0;
     rp->htype = 0;
     rp->hoffset = 0;
-    rp->dimp = 0;
+    rp->hdimp = 0;
     sp = symbuf;
 
     if (xdflg)
@@ -876,9 +877,12 @@ getf:
             {
                 peeksym = o;
                 cval = conexp();
+                
                 for (o = ds->ssp & 0377; o < dimp; o++)
                     dimtab[o] *= cval;
+
                 dimtab[dimp++] = cval;
+
                 if ((o = symbol()) != RBRACK)
                     goto syntax;
             }
