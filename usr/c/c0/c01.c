@@ -154,7 +154,7 @@ void build(int op)
         if ((t & 030) == ARRAY)
         {
             t = decref(t);
-            p2->ssp++;
+            ((struct sym_list__ *)p2)->ssp++;
         }
 
         setype(p1, t, p2->dimp);
@@ -377,7 +377,7 @@ struct tnode *disarray(struct tnode *ap)
             return (p);
     }
 
-    p->ssp++;
+    ((struct sym_list__ *)p)->ssp++;
     *cp++ = p;
     setype(p, decref(t), -1);
     build(AMPER);
@@ -418,7 +418,7 @@ void error(char *s, ...)
     va_start(args, s);
 
     nerror++;
-    flush_buffer(ascbuf);
+    fflush_old(ascbuf);
     f = ascbuf[0];
     ascbuf[0] = 1;
     printf("%d: ", line);
@@ -428,7 +428,7 @@ void error(char *s, ...)
     va_end(args);
 
     putchar('\n');
-    flush_buffer(ascbuf);
+    fflush_old(ascbuf);
     ascbuf[0] = f;
 }
 

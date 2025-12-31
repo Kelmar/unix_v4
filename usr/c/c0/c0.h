@@ -1,8 +1,13 @@
 #
 /*
  * C compiler-- pass 1 header
- *
- *	Copyright 1973 Bell Telephone Laboratories, Inc.
+ * Copyright 1973 Bell Telephone Laboratories, Inc.
+ */
+
+/*
+ * Size notes for PDP-11:
+ * char : 1 byte
+ * int  : 2 bytes
  */
 
 /*
@@ -73,9 +78,18 @@ struct hshtab
 
 struct tnode_new
 {
-    int op;   // Same as nop, cop, hclass
-    int type; // Same as ntype, ctype, htype
-    int dimp; // Same as ndimp, cdimp, hdimp
+    int op;   // Same as nop, cop, hclass, fop
+    int type; // Same as ntype, ctype, htype, ftype
+
+    union
+    {
+        int dimp; // Same as ndimp, cdimp, hdimp (ssp + lenp ?)
+        struct
+        {
+            char ssp;
+            char lenp;
+        };
+    };
 
     union
     {
@@ -108,9 +122,19 @@ struct swtab
     int swval;
 };
 
-extern char cvtab[];
+/* Found in c00.c */
+extern int isn;
+extern int peeksym;
+extern int line;
+extern int debug;
+extern int dimp;
+
+/* Found in c04.c */
 extern int opdope[];
+extern char cvtab[];
 extern char ctab[];
+
+/* Remaining items. */
 extern char symbuf[ncps];
 extern int hshused;
 extern struct hshtab hshtab[hshsiz];
@@ -120,7 +144,6 @@ extern int *space;
 extern int *cp;
 
 extern int cmst[cmsiz];
-extern int isn;
 extern struct swtab swtab[swsiz];
 extern struct swtab *swp;
 extern int contlab;
@@ -129,12 +152,9 @@ extern int retlab;
 extern int deflab;
 extern int nauto;
 extern int autolen;
-extern int peeksym;
 extern int peekc; /* Look ahead character? */
 extern int eof;
-extern int line;
 extern int *treebase;
-extern int debug;
 extern struct hshtab *defsym;
 extern struct hshtab *funcsym;
 extern int xdflg;
@@ -154,7 +174,6 @@ extern int inhdr;
 extern int dimtab[dimsiz];
 extern char binbuf[518];
 extern char ascbuf[518];
-extern int dimp;
 extern int regvar;
 
 /*
@@ -309,24 +328,19 @@ extern int regvar;
 #define	RASSOC  0200
 #define	LEAF    0400
 
-
 /*
  * Prototypes
  */
 /* Polyfill code */
 int fcreat(const char *path, const char *buf);
+int putc_old(int, char *);
 void putw_old(int *, char *);
 void fflush_old(char buffer[518]);
 
 /* Other functions */
 void extdef();
 void blkend();
-int chkdim();
-int length(struct hshtab *dsym);
-int rlength(struct hshtab *dsym);
-int plength(struct tnode *node);
 int getype();
-void errflush(int o);
 void build(int o);
 void pblock(int o);
 int nextchar();
@@ -342,3 +356,12 @@ int *block(int num, int op, int t, int d, int p1, int p2, int p3);
 void error(char *fmt, ...);
 
 int conexp();
+
+/* Defined in c02.c */
+void chkdim();
+void errflush(int ao);
+
+/* Defined in c03.c */
+int length(struct tnode *dsym);
+int rlength(struct tnode *dsym);
+int plength(struct tnode *node);

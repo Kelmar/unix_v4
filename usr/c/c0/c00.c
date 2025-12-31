@@ -64,7 +64,7 @@ void redec();
 
 void main(int argc, char* argv[])
 {
-    extern int fin;
+    int fin = 0;
 
     int treespace[ossiz];
     register char *sp, *np;
@@ -117,8 +117,8 @@ void main(int argc, char* argv[])
         blkend();
     }
 
-    flush_buffer(ascbuf);
-    flush_buffer(binbuf);
+    fflush_old(ascbuf);
+    fflush_old(binbuf);
 
     exit(nerror != 0);
 }
@@ -782,7 +782,7 @@ int decl1(int askw, int tkw, int offset, int elsize)
 
     if (elsize && ((type & 07) == RSTRUCT || (type & 07) == STRUCT))
     {
-        dsym->lenp = dimp;
+        ((struct sym_list__ *)dsym)->lenp = dimp;
         chkdim();
         dimtab[dimp++] = elsize;
     }
@@ -853,7 +853,7 @@ int getype()
     case NAME:
         defsym = ds = csym;
         type = 0;
-        ds->ssp = dimp;
+        ((struct sym_list__ *)ds)->ssp = dimp;
 getf:
         switch (o = symbol())
         {
@@ -878,7 +878,7 @@ getf:
                 peeksym = o;
                 cval = conexp();
                 
-                for (o = ds->ssp & 0377; o < dimp; o++)
+                for (o = ((struct sym_list__ *)ds)->ssp & 0377; o < dimp; o++)
                     dimtab[o] *= cval;
 
                 dimtab[dimp++] = cval;

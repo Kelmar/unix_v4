@@ -1,4 +1,4 @@
-OBJS=poly.o c00.o
+OBJS=poly.o globals.o getnum.o c00.o c01.o c02.o c03.o c04.o
 HDRS=c0.h
 
 c0: $(OBJS)
