@@ -6,7 +6,7 @@
 
 #include "c0.h"
 
-char symbuf[ncps];
+char symbuf[ncps]; /* Symbol name buffer */
 int hshused;
 struct hshtab hshtab[hshsiz];
 int *space;

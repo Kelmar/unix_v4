@@ -2,12 +2,11 @@
 /*
  * C compiler
  * Copyright 1972 Bell Telephone Laboratories, Inc.
+ * 
+ * Stage 1
  */
 
 #include <stdio.h>
-#include <stdlib.h>
-
-#include <fcntl.h>
 
 #include "c0.h"
 
@@ -17,42 +16,34 @@ int line = 1;
 int debug = 0;
 int dimp = 0;
 
-struct kwtab
-{
-    char *kwname;
-    int kwval;
-};
-
 struct kwtab kwtab[] =
 {
-    "int", INT,
-    "char", CHAR,
-    "float", FLOAT,
-    "double", DOUBLE,
-    "struct", STRUCT,
-    "auto", AUTO,
-    "extern", EXTERN,
-    "static", STATIC,
+    "int",      INT,
+    "char",     CHAR,
+    "float",    FLOAT,
+    "double",   DOUBLE,
+    "struct",   STRUCT,
+    "auto",     AUTO,
+    "extern",   EXTERN,
+    "static",   STATIC,
     "register", REG,
-    "goto", GOTO,
-    "return", RETURN,
-    "if", IF,
-    "while", WHILE,
-    "else", ELSE,
-    "switch", SWITCH,
-    "case", CASE,
-    "break", BREAK,
+    "goto",     GOTO,
+    "return",   RETURN,
+    "if",       IF,
+    "while",    WHILE,
+    "else",     ELSE,
+    "switch",   SWITCH,
+    "case",     CASE,
+    "break",    BREAK,
     "continue", CONTIN,
-    "do", DO,
-    "default", DEFAULT,
-    "for", FOR,
-    "sizeof", SIZEOF,
+    "do",       DO,
+    "default",  DEFAULT,
+    "for",      FOR,
+    "sizeof",   SIZEOF,
     0, 0, /* Terminator */
 };
 
 // Defined in this file.
-struct hshtab *lookup();
-int symbol();
 int subseq(int chr, int a, int b);
 int getstr();
 int getcc();
@@ -62,67 +53,24 @@ int decl1(int askw, int tkw, int offset, int elsize);
 void decsyn(int o);
 void redec();
 
-void main(int argc, char* argv[])
-{
-    int fin = 0;
+/*************************************************************************/
+/*
+ * The hash table appears to only care about the first 8 (ncps)
+ * characters, after which it just ignores anything else.  If there's a
+ * collision it chooses the next available entry in the hash table.
+ * 
+ * Note that the hash table has a max of 200 entries.
+ */
+/*************************************************************************/
 
-    int treespace[ossiz];
-    register char *sp, *np;
-    register struct kwtab *ip;
-    struct hshtab *sym;
-
-    if (argc < 4)
-    {
-        error("Arg count");
-        exit(1);
-    }
-
-    if ((fin = open(argv[1], 0)) < 0)
-    {
-        error("Can't find %s", argv[1]);
-        exit(1);
-    }
-
-    if (fcreat(argv[2], ascbuf) < 0 || fcreat(argv[3], binbuf) < 0)
-    {
-        error("Can't create temp");
-        exit(1);
-    }
-
-    if (argc > 4)
-        proflg++;
-        
-    xdflg++;
-
-    for (ip = kwtab; (np = ip->kwname); ip++)
-    {
-        for (sp = symbuf; sp < symbuf + ncps;)
-        {
-            if ((*sp++ = *np++) == '\0')
-                np--;
-        }
-
-        sym = lookup();
-        sym->hclass = KEYWC;
-        sym->htype = ip->kwval;
-    }
-
-    xdflg = 0;
-    treebase = treespace + 10;
-    putw_old(treebase, binbuf);
-
-    while (!eof)
-    {
-        extdef();
-        blkend();
-    }
-
-    fflush_old(ascbuf);
-    fflush_old(binbuf);
-
-    exit(nerror != 0);
-}
-
+/*
+ * Find a symbol in the hash table.
+ *
+ * The symbol to look for is in the symbuf global.
+ * 
+ * Returns a pointer to the found symbol, or the next available entry
+ * in the symbol table if not.
+ */
 struct hshtab *lookup()
 {
     int ihash;
@@ -155,6 +103,8 @@ struct hshtab *lookup()
         exit(1);
     }
 
+    /* Initialize a new entry */
+
     rp->hclass = 0;
     rp->htype = 0;
     rp->hoffset = 0;
@@ -164,12 +114,19 @@ struct hshtab *lookup()
     if (xdflg)
         *sp |= 0200;
 
+    /* Copy the symbol buffer into the newly acquired entry. */
     for (np = rp->name; sp < symbuf + ncps;)
-        *np++ = *sp++;
+        *np++ = *sp++; 
 
     return (rp);
 }
 
+/*************************************************************************/
+/*
+ * Gets the next symbol from the stream.
+ *
+ * This function will ignore whitespace and count lines.
+ */
 int symbol()
 {
     register int c;
@@ -179,8 +136,10 @@ int symbol()
     {
         c = peeksym;
         peeksym = -1;
+
         if (c == NAME)
             mosflg = 0;
+
         return (c);
     }
 
@@ -348,6 +307,11 @@ loop:
     return (ctab[c]);
 }
 
+/*************************************************************************/
+/*
+ * Check the next character in the stream, if it matches "chr" then return
+ * a as the result, otherwise returns b as the result.
+ */
 int subseq(int chr, int a, int b)
 {
     if (!peekc)
@@ -360,6 +324,10 @@ int subseq(int chr, int a, int b)
     return (b);
 }
 
+/*************************************************************************/
+/*
+ * Parse a string constant
+ */
 int getstr()
 {
     register int c;
@@ -381,6 +349,10 @@ int getstr()
     return (STRING);
 }
 
+/*************************************************************************/
+/*
+ * Parse a character constant
+ */
 int getcc()
 {
     register int c, cc;
@@ -401,6 +373,8 @@ int getcc()
 
     return (CON);
 }
+
+/*************************************************************************/
 
 int mapch(int ac)
 {
@@ -471,6 +445,8 @@ loop:
     }
     return (a);
 }
+
+/*************************************************************************/
 
 struct tnode *tree()
 {
@@ -707,6 +683,8 @@ syntax:
     return (0);
 }
 
+/*************************************************************************/
+
 int declare(int askw, int tkw, int offset, int elsize)
 {
     register int o;
@@ -833,6 +811,8 @@ syntax:
     return (elsize);
 }
 
+/*************************************************************************/
+
 int getype()
 {
     register int o, type;
@@ -902,12 +882,20 @@ syntax:
     return (-1);
 }
 
+/*************************************************************************/
+/*
+ * Display syntax error on declaration error.
+ */
 void decsyn(int o)
 {
     error("Declaration syntax");
     errflush(o);
 }
 
+/*************************************************************************/
+/*
+ * Display redeclared error.
+ */
 void redec()
 {
     error("%.8s redeclared", defsym->name);

@@ -2,9 +2,12 @@
 /*
  * C compiler-- pass 1 header
  * Copyright 1973 Bell Telephone Laboratories, Inc.
+ * 
+ * Stage 1
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 
 /*
  * Size notes for PDP-11:
@@ -17,7 +20,7 @@
  */
 
 #define	ncps   8
-#define	hshsiz 200
+#define	hshsiz 200 /* Hash Size */
 #define	cmsiz  40
 #define	swsiz  200
 #define	ncpw   2
@@ -126,10 +129,20 @@ struct swtab
 };
 
 /*
+ * Keyword Table Entry
+ */
+struct kwtab
+{
+    char *kwname;
+    int   kwval;
+};
+
+/*
  * Global variables
  */
 
 /* Found in c00.c */
+extern struct kwtab kwtab[]; /* Keyword table */
 extern int isn;
 extern int peeksym;
 extern int line;
@@ -179,8 +192,8 @@ extern int mosflg;
 extern int initflg;
 extern int inhdr;
 extern int dimtab[dimsiz];
-extern char binbuf[518];
-extern char ascbuf[518];
+extern char binbuf[518]; /* Binary output buffer */
+extern char ascbuf[518]; /* ASCII output buffer */
 extern int regvar;
 
 /*
@@ -217,44 +230,44 @@ extern int regvar;
 #define	COMPL   38
 
 #define	DOT     39 /* DOT operator */
-#define	PLUS    40
-#define	MINUS   41
-#define	TIMES   42
-#define	DIVIDE  43
-#define	MOD     44
-#define	RSHIFT  45
-#define	LSHIFT  46
-#define	AND     47
-#define	OR      48
+#define	PLUS    40 /* +  */
+#define	MINUS   41 /* -  */
+#define	TIMES   42 /* *  */
+#define	DIVIDE  43 /* /  */
+#define	MOD     44 /* %  */
+#define	RSHIFT  45 /* >> */
+#define	LSHIFT  46 /* << */
+#define	AND     47 /* &  */
+#define	OR      48 /* |  */
 #define	EXOR    49
-#define	ARROW   50
+#define	ARROW   50 /* -> */
 #define	ITOF    51
 #define	FTOI    52
-#define	LOGAND  53
-#define	LOGOR   54
+#define	LOGAND  53 /* && */
+#define	LOGOR   54 /* || */
 
-#define	EQUAL   60
-#define	NEQUAL  61
-#define	LESSEQ  62
-#define	LESS    63
-#define	GREATEQ 64
-#define	GREAT   65
-#define	LESSP   66
-#define	LESSEQP 67
-#define	GREATP  68
-#define	GREATQP 69
+#define	EQUAL   60 /* == */
+#define	NEQUAL  61 /* != */
+#define	LESSEQ  62 /* <= */
+#define	LESS    63 /* <  */
+#define	GREATEQ 64 /* >= */
+#define	GREAT   65 /* >  */
+#define	LESSP   66 /* */
+#define	LESSEQP 67 /* */
+#define	GREATP  68 /* */
+#define	GREATQP 69 /* */
 
-#define	ASPLUS  70
-#define	ASMINUS 71
-#define	ASTIMES 72
-#define	ASDIV   73
-#define	ASMOD   74
-#define	ASRSH   75
-#define	ASLSH   76
-#define	ASSAND  77
-#define	ASOR    78
-#define	ASXOR   79
-#define	ASSIGN  80
+#define	ASPLUS  70 /* =+  */
+#define	ASMINUS 71 /* =-  */
+#define	ASTIMES 72 /* =*  */
+#define	ASDIV   73 /* =/  */
+#define	ASMOD   74 /* =%  */
+#define	ASRSH   75 /* =>> */
+#define	ASLSH   76 /* =<< */
+#define	ASSAND  77 /* =&  */
+#define	ASOR    78 /* =|  */
+#define	ASXOR   79 /* =^  */
+#define	ASSIGN  80 /* */
 
 #define	QUEST   90
 #define	CALL    100
@@ -354,6 +367,8 @@ int nextchar();
 int getnum(int base);
 
 /* Defined in c00.c */
+struct hshtab *lookup();
+int symbol();
 struct tnode *tree();
 
 /* Defined in c01.c */
