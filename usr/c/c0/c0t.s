@@ -87,6 +87,7 @@ _getnum:
 	mov	$21.,r0		/ fixed constant
 	br	9b
 1:
+
 	.if	fpp
 	movif	$1,fr2
 	mov	nfract,r2
@@ -121,7 +122,9 @@ _getnum:
 	mov	$23.,r0
 	br	9b
 	.endif
+
 	.if	1-fpp
+    / This isn't even assembled based on the conditional.
 	mov	$fperr,-(sp)
 	jsr	pc,_error
 	tst	(sp)+
@@ -146,7 +149,7 @@ getdig:
 	mul	base,r1
 	add	r0,r1
 	mov	r1,_cval
-	tst	(r5)+
+	tst	(r5)+       / This will cause the return to skip an instruction on return.
 	rts	r5
 1:
 	add	$'0,r0

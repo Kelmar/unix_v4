@@ -4,6 +4,8 @@
  * Copyright 1973 Bell Telephone Laboratories, Inc.
  */
 
+#include <stdint.h>
+
 /*
  * Size notes for PDP-11:
  * char : 1 byte
@@ -78,16 +80,17 @@ struct hshtab
 
 struct tnode_new
 {
-    int op;   // Same as nop, cop, hclass, fop
-    int type; // Same as ntype, ctype, htype, ftype
+    int16_t op;   /* Same as nop, cop, hclass, fop */
+    int16_t type; /* Same as ntype, ctype, htype, ftype */
 
     union
     {
-        int dimp; // Same as ndimp, cdimp, hdimp (ssp + lenp ?)
-        struct
+        int16_t dimp; /* Same as ndimp, cdimp, hdimp */
+
+        struct /* Anonymous struct in old code. */
         {
-            char ssp;
-            char lenp;
+            int8_t ssp;
+            int8_t lenp;
         };
     };
 
@@ -100,17 +103,17 @@ struct tnode_new
         };
         struct /* tname */
         {
-            int class;
-            int offset;
-            int nloc;
+            int16_t class;
+            int16_t offset;
+            int16_t nloc;
         };
         struct /* tconst */
         {
-            int value;
+            int16_t value;
         };
         struct
         {
-            int hoffset;
+            int16_t hoffset;
             char name[ncps];
         };
     };
@@ -118,9 +121,13 @@ struct tnode_new
 
 struct swtab
 {
-    int swlab;
-    int swval;
+    int16_t swlab;
+    int16_t swval;
 };
+
+/*
+ * Global variables
+ */
 
 /* Found in c00.c */
 extern int isn;
@@ -152,7 +159,7 @@ extern int retlab;
 extern int deflab;
 extern int nauto;
 extern int autolen;
-extern int peekc; /* Look ahead character? */
+extern int peekc; /* peek character (0 == none) */
 extern int eof;
 extern int *treebase;
 extern struct hshtab *defsym;
@@ -160,8 +167,8 @@ extern struct hshtab *funcsym;
 extern int xdflg;
 extern int proflg;
 extern struct hshtab *csym;
-extern char cval;
-extern double fcval;
+extern char cval;    /* integer value accumulator */
+extern double fcval; /* floating point accumulator */
 extern int nchstr;
 extern int nerror;
 extern struct hshtab *paraml;
@@ -192,10 +199,10 @@ extern int regvar;
 
 #define	KEYW    19
 #define	NAME    20
-#define	CON     21
-#define	STRING  22
-#define	FCON    23
-#define	SFCON   24
+#define	CON     21 /* Fixed point constant */
+#define	STRING  22 /* String constant */
+#define	FCON    23 /* double? floating point constant? */
+#define	SFCON   24 /* single? floating point constant? */
 
 #define	SIZEOF  29
 #define	INCBEF  30
@@ -209,7 +216,7 @@ extern int regvar;
 #define	NEG     37
 #define	COMPL   38
 
-#define	DOT     39
+#define	DOT     39 /* DOT operator */
 #define	PLUS    40
 #define	MINUS   41
 #define	TIMES   42
@@ -351,10 +358,8 @@ struct tnode *tree();
 
 /* Defined in c01.c */
 void build(int op);
-
 int *block(int num, int op, int t, int d, int p1, int p2, int p3);
 void error(char *fmt, ...);
-
 int conexp();
 
 /* Defined in c02.c */
